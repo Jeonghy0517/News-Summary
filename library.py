@@ -132,5 +132,100 @@ print(a-b)
 print(a&b) #교집합
 print(a|b) #합집합
 
+#---------------------------------------------------------------------------------------------------------------------
+#문서 요약하기
+#gensim : 자연어 처리, 토픽 모델링에 활발히 사용되는 파이썬 머신러닝 라이브러리
+#summarization 내장 모듈로 긴 문장을 요약할 수 있음 (gensim 3.7.3 사용)
+import gensim
 
+#모델 불러오기(Word2Vec 알고리즘을 통해 자연어의 벡터화)
+model = gensim.models.Word2Vec.load('../ko/ko.bin')
+print(model)
 
+#유사한 단어 검색
+print(model.wv.most_similar("뉴스"))
+#유사도 검색
+print(model.wv.similarity('자동차','강아지'))
+#유사도 검색
+print(model.wv.similarity('자동차','버스'))
+
+#문서 요약하기
+from gensim.summarization.summarizer import summarize
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv('Book_test.csv')
+df = df.iloc[0:100] #전체 데이터 프레임에서 0부터 100까지 행에 있는 값을 추출
+#iloc : integer location, 행이나 칼럼의 순서를 나타내는 정수
+df.reset_index(inplace=True) #기존 인덱스 제거
+
+print(df.head())
+print(df.loc[0,'passage']) #index 0의 passage
+print(df.loc[0,'summary']) #index 0의 summary
+
+#첫번째 데이터 요약
+print(summarize(df.loc[0,'passage']))
+print(summarize(df.loc[0,'passage'], ratio=0.4))
+
+#전체 데이터 적용
+df['extract'] = df.passage.apply(lambda  x : summarize(x, ratio=0.4))
+print(df.head)
+
+#시각화
+for i in range(0,1):
+    random_num = np.random.randint(0, 100,size=1)
+    print("="*120)
+    print(f'{random_num[0]}' + '번째 문장 \n')
+    print('원문 : \n\n' + df['passage'][random_num[0]] + '\n\n')
+    print('AI 요약 : \n\n' + df['summary'][random_num[0]] + '\n\n')
+    print('Gensim 요약 : \n\n' + df['extract'][random_num[0]] + '\n\n')
+
+#----------------------------------------------------------------------------------------------------------------------
+#텍스트 파일 저장
+#open, close
+
+#텍스트 파일 생성
+f = open("새파일.txt","w")
+f.close
+
+#텍스트 파일 쓰기
+f = open("새파일.txt", 'w')
+for i in range(1, 11):
+    data = '%d번째 줄입니다. \n' % i
+    f.write(data)
+f.close()
+
+#한 줄 읽기
+# f = open("새파일.txt", 'r')
+# line = f.readline()
+# print(line)
+# f.close()
+
+#여러 줄 읽기
+f = open("새파일.txt", 'r')
+lines = f.readlines()
+for line in lines:
+    print(line)
+f.close()
+
+#내용 추가하기
+# w 모드 사용 시 (write)
+f = open("새파일.txt",'w')
+for i in range(11, 21):
+    data = "%d번째 줄입니다.\n" % i
+    f.write(data)
+f.close()
+
+# a 모드 사용 시 (append)
+f = open("새파일.txt",'a')
+for i in range(11, 21):
+    data = "%d번째 줄입니다.\n" % i
+    f.write(data)
+f.close()
+
+#with 문 사용
+# close() 사용 불필요
+with open("새파일.txt", "w") as f:
+    for i in range(1, 11):
+        data = "%d번째 줄입니다.\n" % i
+        f.write(data)
